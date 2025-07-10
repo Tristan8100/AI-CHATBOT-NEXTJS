@@ -1,6 +1,7 @@
 import * as React from "react"
 import { MessageSquare, Plus, GalleryVerticalEnd, Search } from "lucide-react"
-
+import { useAuth } from "@/contexts/AuthContext"
+import { api2 } from "@/lib/api"
 import {
   Sidebar,
   SidebarContent,
@@ -12,6 +13,8 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { Separator } from "@/components/ui/separator"
+import { useQuery } from "@tanstack/react-query"
+import { useEffect } from "react"
 // Sample chat data
 const chats = [
   { id: "1", title: "How to build a React app", lastMessage: "Just use create-react-app" },
@@ -21,7 +24,41 @@ const chats = [
   { id: "5", title: "Database schema", lastMessage: "Check the ER diagram" },
 ]
 
+interface Message {
+  id: number;
+  conversation_id: number;
+  message: string;
+  sender: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Conversation {
+  id: number;
+  user_id: number;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  messages: Message[];
+}
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const fetchConversation = async () => {
+    const response = await api2.get('/api/get-conversations'); // Adjust route to match your Laravel route
+    return response.data.content;
+  };
+
+  const { data, isLoading, error } = useQuery<Conversation[]>({
+    queryKey: ['conversations'],
+    queryFn: fetchConversation,
+  });
+
+  useEffect(() => {
+    if (data) {
+      console.log('Conversations data:', data);
+    }
+  }, [data]);
+  
   return (
     <Sidebar variant="floating" {...props}>
       {/* Logo & Version (Top) */}
@@ -57,28 +94,42 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <Separator className="my-2 gap-2"/>
 
-      {/* Chat History List (Spacious & Clean) */}
+      {/* Chat History List */}
       <SidebarContent className="px-2">
         <SidebarGroup>
           <SidebarMenu className="gap-1">
-            {chats.map((chat) => (
-              <SidebarMenuItem key={chat.id}>
-                <SidebarMenuButton
-                  asChild
-                  className="w-full border justify-start h-14 hover:bg-gray-50"
-                >
-                  <Link href="conversation/3">
-                    <MessageSquare className="size-4 flex-shrink-0" />
-                    <div className="flex flex-col overflow-hidden">
-                      <span className="truncate font-medium">{chat.title}</span>
-                      <span className="truncate text-sm text-muted-foreground">
-                        {chat.lastMessage}
-                      </span>
-                    </div>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {isLoading && <div className="p-4 text-center">Loading chats...</div>}
+            {error && <div className="p-4 text-center text-red-500">Failed to load chats.</div>}
+            {!isLoading && !error && chats.length === 0 && (
+              <div className="p-4 text-center">No conversations found.</div>
+            )}
+            {!isLoading &&
+              !error &&
+              data && data.map((chat: Conversation) => {
+                // get last message text or fallback
+                const lastMsg = chat.messages?.length
+                  ? chat.messages[chat.messages.length - 1].message
+                  : "No messages yet";
+
+                return (
+                  <SidebarMenuItem key={chat.id}>
+                    <SidebarMenuButton
+                      asChild
+                      className="w-full border justify-start h-14 hover:bg-gray-50"
+                    >
+                      <Link href={`conversation/${chat.id}`}>
+                        <MessageSquare className="size-4 flex-shrink-0" />
+                        <div className="flex flex-col overflow-hidden">
+                          <span className="truncate font-medium">{chat.title}</span>
+                          <span className="truncate text-sm text-muted-foreground">
+                            {lastMsg}
+                          </span>
+                        </div>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
