@@ -1,6 +1,6 @@
 
 'use client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, QueryClientConfig } from '@tanstack/react-query';
 import { ReactNode, useState } from 'react';
 
 export default function QueryWrapper({ children }: { children: ReactNode }) {
@@ -8,9 +8,20 @@ export default function QueryWrapper({ children }: { children: ReactNode }) {
     {
       defaultOptions: {
         queries: {
-          refetchOnWindowFocus: false,
+          // Always treat data as stale
+          staleTime: 0,
+
+          // Auto-refetch when tab is focused
+          refetchOnWindowFocus: true,
+
+          // Optional: auto-refetch on network reconnect
+          refetchOnReconnect: true,
+
+          // Optional: auto-refetch on mount
+          refetchOnMount: true,
+
+          // Optional: limit retries if request fails
           retry: 1,
-          staleTime: 1000 * 60 * 5, // 5 minutes
         },
       },
     }
