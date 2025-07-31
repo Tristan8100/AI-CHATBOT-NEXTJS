@@ -44,7 +44,7 @@ interface Conversation {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const fetchConversation = async () => {
-    const response = await api2.get('/api/get-conversations'); // Adjust route to match your Laravel route
+    const response = await api2.get('/api/get-conversations');
     return response.data.content;
   };
 
@@ -117,7 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       asChild
                       className="w-full border justify-start h-14 hover:bg-gray-50"
                     >
-                      <Link href={`conversation/${chat.id}`}>
+                      <Link href={`/dashboard/chat/${chat.id}`}>
                         <MessageSquare className="size-4 flex-shrink-0" />
                         <div className="flex flex-col overflow-hidden">
                           <span className="truncate font-medium">{chat.title}</span>
