@@ -9,11 +9,21 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Send } from 'lucide-react'
 import { api2 } from '@/lib/api'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export function ChatInterfaceChats({messages = [], id}: { messages?: any[], id?: any }) {
     const [chatMessages, setChatMessages] = useState(messages)
   const [inputValue, setInputValue] = useState('')
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+      if (scrollAreaRef.current) {
+          scrollAreaRef.current.scrollTo({
+              top: scrollAreaRef.current.scrollHeight,
+              behavior: 'smooth'
+          })
+      }
+  }
 
 
    useEffect(() => {
@@ -22,9 +32,30 @@ export function ChatInterfaceChats({messages = [], id}: { messages?: any[], id?:
 
   const handleSendMessage = async () => {
     console.log('Sending message:', inputValue, id)
-    
-    const response = await api2.post('/api/send-message', { conversation_id: id, message: inputValue })
 
+    const newMessage = {
+      id: Date.now().toString(),
+      sender: 'user',
+      message: inputValue,
+      created_at: new Date().toISOString(),
+    }
+
+    setChatMessages((prevMessages) => [...prevMessages, newMessage])
+    setInputValue('')
+    
+    scrollToBottom()
+
+    const response = await api2.post('/api/send-message', { conversation_id: id, message: inputValue })
+    console.log(response.data.response)
+
+    const aiMessage = {
+      id: Date.now().toString(),
+      sender: 'ai',
+      message: response.data.response,
+      created_at: new Date().toISOString(),
+    }
+    setChatMessages((prevMessages) => [...prevMessages, aiMessage])
+    scrollToBottom()
   }
 
   const transformedMessages = chatMessages.map(message => ({

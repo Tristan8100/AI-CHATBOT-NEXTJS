@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/sidebar"
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
+import { ModeToggle } from "@/components/toggle"
+
 export default function Page({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   useEffect(() => {
@@ -51,6 +53,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+          <ModeToggle />
         </header>
         {children}
       </SidebarInset>
