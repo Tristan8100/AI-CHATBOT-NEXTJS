@@ -43,7 +43,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
-
+import { ScrollArea } from '@/components/ui/scroll-area';
 type Conversation = {
   id: string;
   title: string;
@@ -128,12 +128,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild>
                 <a href="#" className="flex items-center gap-3">
-                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                     <GalleryVerticalEnd className="size-4" />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-medium">ChatGPT Clone</span>
-                    <span className="text-xs">v1.0.0</span>
+                    <span className="font-medium">AI CHATBOT</span>
                   </div>
                 </a>
               </SidebarMenuButton>
@@ -143,7 +142,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
         {/* "New Chat" Button (Big & Centered) */}
         <SidebarGroup className="px-3 pb-3">
-          <SidebarMenuButton className="w-full h-10 justify-center gap-2 border border-gray-200 hover:bg-gray-50">
+          <SidebarMenuButton className="w-full h-10 justify-center gap-2 border border-input hover:bg-accent hover:text-accent-foreground">
             <Link 
               href="/dashboard" 
               className="w-full h-full flex items-center justify-center"
@@ -152,7 +151,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <span>New Chat</span>
             </Link>
           </SidebarMenuButton>
-          <SidebarMenuButton className="w-full h-10 mt-2 justify-center gap-2 border border-gray-200 hover:bg-gray-50">
+          <SidebarMenuButton className="w-full h-10 mt-2 justify-center gap-2 border border-input hover:bg-accent hover:text-accent-foreground">
             <Search className="size-4" />
             <span>Search Chat</span>
           </SidebarMenuButton>
@@ -164,10 +163,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarContent className="px-2">
           <SidebarGroup>
             <SidebarMenu className="gap-1">
-              {isLoading && <div className="p-4 text-center">Loading chats...</div>}
-              {error && <div className="p-4 text-center text-red-500">Failed to load chats.</div>}
+              {isLoading && <div className="p-4 text-center text-muted-foreground">Loading chats...</div>}
+              {error && <div className="p-4 text-center text-destructive">Failed to load chats.</div>}
               {!isLoading && !error && data && data.length === 0 && (
-                <div className="p-4 text-center">No conversations found.</div>
+                <div className="p-4 text-center text-muted-foreground">No conversations found.</div>
               )}
               {!isLoading &&
                 !error &&
@@ -181,8 +180,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       <div className="relative group">
                         <SidebarMenuButton
                           asChild
-                          className={`w-full border justify-start h-14 hover:bg-muted pr-10 ${
-                            chatId == chat.id ? "bg-primary/10" : ""
+                          className={`w-full justify-start h-14 hover:bg-accent pr-10 ${
+                            chatId == chat.id ? "bg-accent" : ""
                           }`}
                         >
                           <Link href={`/dashboard/chat/${chat.id}`}>
@@ -211,7 +210,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              className="text-red-600 focus:text-red-600"
+                              className="text-destructive focus:text-destructive"
                               onClick={() => openDeleteDialog(chat)}
                             >
                               Delete
@@ -238,7 +237,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

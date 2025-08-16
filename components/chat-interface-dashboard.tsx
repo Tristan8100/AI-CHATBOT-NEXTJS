@@ -47,7 +47,7 @@ export function ChatInterfaceDash({inside}: { inside?: boolean }) {
   }
 
   return (
-    <Card className="mx-0 sm:mx-2 sm:mx-4 md:mx-8 lg:mx-12 xl:mx-64 flex h-full mb-32 flex-col">
+    <Card className="mx-0 sm:mx-2 border border-gray-200 sm:mx-4 md:mx-8 lg:mx-12 xl:mx-16 flex h-full mb-32 flex-col">
       <CardHeader className="pb-3">
         <div className="flex items-center space-x-3">
           <Avatar>

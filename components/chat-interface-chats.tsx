@@ -11,24 +11,32 @@ import { api2 } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 
+
 export function ChatInterfaceChats({messages = [], id}: { messages?: any[], id?: any }) {
     const [chatMessages, setChatMessages] = useState(messages)
   const [inputValue, setInputValue] = useState('')
   const scrollAreaRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
-      if (scrollAreaRef.current) {
-          scrollAreaRef.current.scrollTo({
-              top: scrollAreaRef.current.scrollHeight,
-              behavior: 'smooth'
-          })
-      }
+    scrollAreaRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
 
-   useEffect(() => {
+  useEffect(() => {
     setChatMessages(messages)
+    const timer = setTimeout(() => {
+      scrollToBottom()
+    }, 100)
+    return () => clearTimeout(timer)
   }, [messages])
+
+    useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollToBottom()
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [chatMessages])
+
 
   const handleSendMessage = async () => {
     console.log('Sending message:', inputValue, id)
@@ -42,8 +50,7 @@ export function ChatInterfaceChats({messages = [], id}: { messages?: any[], id?:
 
     setChatMessages((prevMessages) => [...prevMessages, newMessage])
     setInputValue('')
-    
-    scrollToBottom()
+  
 
     const response = await api2.post('/api/send-message', { conversation_id: id, message: inputValue })
     console.log(response.data.response)
@@ -55,7 +62,6 @@ export function ChatInterfaceChats({messages = [], id}: { messages?: any[], id?:
       created_at: new Date().toISOString(),
     }
     setChatMessages((prevMessages) => [...prevMessages, aiMessage])
-    scrollToBottom()
   }
 
   const transformedMessages = chatMessages.map(message => ({
@@ -68,7 +74,7 @@ export function ChatInterfaceChats({messages = [], id}: { messages?: any[], id?:
   }))
 
   return (
-    <Card className="mx-0 sm:mx-2 sm:mx-4 md:mx-8 lg:mx-12 xl:mx-64 flex flex-col h-[calc(100vh-100px)]">
+    <Card className="mx-0 sm:mx-2 sm:mx-4 border border-muted md:mx-8 lg:mx-12 xl:mx-16 flex flex-col h-[calc(100vh-100px)]">
       <CardHeader className="pb-3">
         <div className="flex items-center space-x-3">
           <Avatar>
@@ -91,7 +97,7 @@ export function ChatInterfaceChats({messages = [], id}: { messages?: any[], id?:
               >
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={message.avatar || "/placeholder.svg"} />
-                  <AvatarFallback>{message.sender === "user" ? "YU" : "AC"}</AvatarFallback>
+                  <AvatarFallback>{message.sender === "user" ? message.sender[0] : "AI"}</AvatarFallback>
                 </Avatar>
                 <div
                   className={`flex flex-col space-y-1 max-w-xs lg:max-w-md ${
@@ -110,11 +116,12 @@ export function ChatInterfaceChats({messages = [], id}: { messages?: any[], id?:
               </div>
             ))}
           </div>
+          <div ref={scrollAreaRef}></div>
         </ScrollArea>
       </CardContent>
 
       {/* Fixed input area at the bottom */}
-      <CardFooter className="pt-3 pb-6 bg-background border-t">
+      <CardFooter className="pt-3 pb-6 bg-background">
         <div className="flex w-full space-x-2">
           <Input
             placeholder="Type a message..."
